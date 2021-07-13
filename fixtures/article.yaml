@@ -1,0 +1,7 @@
+App\Entity\Article:
+  article{1..1000}:
+    name: <name()>
+    slug: <name()>
+    preview: <current()> Preview
+    content: <current()> Content
+    tags: <current()> Tag

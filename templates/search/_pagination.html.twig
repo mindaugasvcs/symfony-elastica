@@ -1,0 +1,8 @@
+{% if pagination.haveToPaginate %}
+    {{ pagerfanta(pagination, {
+        omitFirstPage: true,
+        css_container_class: 'pagination justify-content-center',
+        'prev_message': ('previous'|trans({}, 'pagination')),
+        'next_message': ('next'|trans({}, 'pagination'))})
+    }}
+{% endif %}

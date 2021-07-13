@@ -1,0 +1,15 @@
+# Read the documentation: https://github.com/FriendsOfSymfony/FOSElasticaBundle/blob/master/doc/setup.md
+fos_elastica:
+    clients:
+        default: { url: http://localhost, host: localhost, port: 9200 }
+    indexes:
+        article:
+            properties:
+                name: ~
+                slug: ~
+                preview: ~
+                content: ~
+                tags: ~
+            persistence:
+                driver: orm
+                model: App\Entity\Article

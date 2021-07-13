@@ -1,0 +1,33 @@
+version: '3.7'
+
+services:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.13.2
+    container_name: sb-elasticsearch
+    ports:
+      - "9209:9200"
+      - "9309:9300" # Important if you have multiple es instances running
+    environment:
+      - "http.port=9200"
+      - "discovery.type=single-node"
+      - "bootstrap.memory_lock=true"
+      - "ES_JAVA_OPTS=-Xms1G -Xmx1G"
+      - "xpack.security.enabled=false"
+      - "http.cors.enabled=true"
+      - "http.cors.allow-origin=*"
+      - "cluster.routing.allocation.disk.threshold_enabled=false" # https://www.elastic.co/guide/en/elasticsearch/reference/6.8/disk-allocator.html
+    healthcheck:
+      test: ["CMD-SHELL", "curl --silent --fail localhost:9200/_cluster/health?wait_for_status=yellow&timeout=30s || exit 1"]
+      interval: 10s
+      timeout: 30s
+      retries: 10
+
+  kibana:
+    container_name: sb-kibana
+    image: docker.elastic.co/kibana/kibana:7.13.2
+    ports:
+      - "5601:5601"
+    environment:
+      - "ELASTICSEARCH_URL=http://sb-elasticsearch"
+    depends_on:
+      - elasticsearch
