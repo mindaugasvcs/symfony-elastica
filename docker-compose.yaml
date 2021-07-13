@@ -1,0 +1,76 @@
+# ./docker-compose.yaml
+
+# DEV docker compose file ——————————————————————————————————————————————————————
+# Check out: https://docs.docker.com/compose/gettingstarted/
+version: '3.7'
+
+services:
+  # Database ———————————————————————————————————————————————————————————————————
+  # MySQL server database (official image)
+  # https://docs.docker.com/samples/library/mysql/
+  db:
+    image: mysql:5.7
+    container_name: sb-db
+    command: --default-authentication-plugin=mysql_native_password
+    ports:
+      - "3309:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_HOST: '%'
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -P 3306 -proot | grep 'mysqld is alive' || exit 1"]
+      interval: 10s
+      timeout: 30s
+      retries: 10
+
+  # Snippet L20+4 in templates/snippet/code/_133.html.twig
+
+  # —— Elasticsearch ———————————————————————————————————————————————————————————
+
+  # Elasticsearch server (official image)
+  # https://www.elastic.co/guide/en/elasticsearch/reference/current/docker.html
+  # https://hub.docker.com/_/elasticsearch/
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.8.10
+    container_name: sb-elasticsearch
+    ports:
+      - "9209:9200"
+      - "9309:9300" # Important if you have multiple es instances running
+    environment:
+      - "http.port=9200"
+      - "discovery.type=single-node"
+      - "bootstrap.memory_lock=true"
+      - "ES_JAVA_OPTS=-Xms1G -Xmx1G"
+      - "xpack.security.enabled=false"
+      - "http.cors.enabled=true"
+      - "http.cors.allow-origin=*"
+      - "cluster.routing.allocation.disk.threshold_enabled=false" # https://www.elastic.co/guide/en/elasticsearch/reference/6.8/disk-allocator.html
+    healthcheck:
+      test: ["CMD-SHELL", "curl --silent --fail localhost:9200/_cluster/health?wait_for_status=yellow&timeout=30s || exit 1"]
+      interval: 10s
+      timeout: 30s
+      retries: 10
+
+  # Cache ——————————————————————————————————————————————————————————————————————
+  # Redis (official image)
+  # https://hub.docker.com/_/redis
+  redis:
+    image: redis:5.0.6-alpine
+    container_name: sb-redis
+    ports:
+      - '6389:6379'
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -h 127.0.0.1 ping | grep 'PONG' || exit 1"]
+      interval: 10s
+      timeout: 30ss
+      retries: 10
+
+  kibana:
+    container_name: sb-kibana
+    image: docker.elastic.co/kibana/kibana:6.8.10
+    ports:
+      - "5601:5601"
+    environment:
+      - "ELASTICSEARCH_URL=http://sb-elasticsearch"
+    depends_on:
+      - elasticsearch

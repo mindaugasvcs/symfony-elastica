@@ -1,0 +1,52 @@
+# Read the documentation: https://github.com/FriendsOfSymfony/FOSElasticaBundle/blob/master/doc/setup.md
+fos_elastica:
+    clients:
+        default: { url: '%env(ELASTICSEARCH_URL)%' }
+    indexes:
+        app:
+            use_alias: true
+            types:
+                articles:
+                    properties:
+                        type: ~
+                        keywordFr: { boost: 4 }
+                        keywordEn: { boost: 4 }
+                        # i18n
+                        titleEn: { boost: 3 }
+                        titleFr: { boost: 3 }
+                        headlineEn: { boost: 2 }
+                        headlineFr: { boost: 2 }
+                        ContentEn: ~ # The default boost value is 1
+                        ContentFr: ~
+                    persistence:
+                        driver: orm
+                        model: App\Entity\Article
+                        provider:
+                            service: App\Elasticsearch\Provider\ArticleProvider
+                        listener:
+                            insert: false
+                            update: false
+                            delete: false
+        suggest:
+            use_alias: true
+            settings:
+                index:
+                    analysis:
+                        analyzer:
+                            suggest_analyzer:
+                                type: custom
+                                tokenizer: standard
+                                filter: [lowercase, asciifolding]
+            types:
+                keyword:
+                    properties:
+                        locale:
+                            type: keyword
+                        suggest:
+                            type: completion
+                            analyzer: suggest_analyzer
+                            contexts:
+                                - name: locale
+                                  type: category
+                                  path: locale
+
