@@ -1,0 +1,7 @@
+App\Entity\Article:
+  article_{1..10000}:
+    name: <name()>
+    type: <name()>
+    slug: <name()>
+    keyword: <name()>
+    description: <text()>

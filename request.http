@@ -1,0 +1,36 @@
+### create new index  [settings part is optional]
+PUT http://localhost:9200/symfony-elastica
+
+#{
+#  "settings": {
+#    "index": {
+#       "number_of_shards: 2,
+#       "number_of_replicas": 1
+#      }
+#  }
+#}
+
+
+### show all index
+GET http://localhost:9200/_cat/indices?v
+
+
+### delete an index
+DELETE http://localhost:9200/symfony-elastica
+
+
+
+
+
+### show all cat
+GET http://localhost:9200/_cat
+
+###
+
+# curl http://127.0.0.1:9200
+GET http://127.0.0.1:9200
+
+###
+GET http://127.0.0.1:9200/symfony-elastica/_doc/1
+1
+
